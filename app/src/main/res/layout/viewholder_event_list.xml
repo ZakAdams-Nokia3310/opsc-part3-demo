@@ -1,0 +1,69 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:padding="16dp">
+
+    <!-- Event Image -->
+    <ImageView
+        android:id="@+id/event_image"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/ic_event"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <!-- Event Name -->
+    <TextView
+        android:id="@+id/event_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Event Name"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@id/event_image"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <!-- Event Location -->
+    <TextView
+        android:id="@+id/event_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Location"
+        app:layout_constraintStart_toEndOf="@id/event_image"
+        app:layout_constraintTop_toBottomOf="@id/event_name"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Event Time -->
+    <TextView
+        android:id="@+id/event_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Time"
+        app:layout_constraintStart_toEndOf="@id/event_image"
+        app:layout_constraintTop_toBottomOf="@id/event_location"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Event Genre -->
+    <TextView
+        android:id="@+id/event_genre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Genre"
+        app:layout_constraintStart_toEndOf="@id/event_image"
+        app:layout_constraintTop_toBottomOf="@id/event_time"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Event Price -->
+    <TextView
+        android:id="@+id/event_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Price"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

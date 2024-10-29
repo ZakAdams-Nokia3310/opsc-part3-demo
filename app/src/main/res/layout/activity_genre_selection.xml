@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".GenreSelection">
+
+    <!-- Top Background Image -->
+    <ImageView
+        android:id="@+id/topBackground"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/top_background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Title for Genre Selection -->
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Your Favorite Genres"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/topBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Genre ScrollView -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollViewGenres"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/titleText"
+        app:layout_constraintBottom_toTopOf="@id/saveButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Genre: R&B -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardRNB"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="12dp">
+                <TextView
+                    android:id="@+id/textRNB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RnB"
+                    android:padding="24dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Genre: Pop -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardPop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="12dp">
+                <TextView
+                    android:id="@+id/textPop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pop"
+                    android:padding="24dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Genre: Hip-Hop/Rap -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardHipHop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="12dp">
+                <TextView
+                    android:id="@+id/textHipHop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hip-Hop/Rap"
+                    android:padding="24dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Genre: Indie -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardIndie"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="12dp">
+                <TextView
+                    android:id="@+id/textIndie"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Indie"
+                    android:padding="24dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Genre: Rock -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardRock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="12dp">
+                <TextView
+                    android:id="@+id/textRock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rock"
+                    android:padding="24dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Genre: Alternative -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardAlternative"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="12dp">
+                <TextView
+                    android:id="@+id/textAlternative"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Alternative"
+                    android:padding="24dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Genre: Old Skool -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardOldSkool"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="12dp">
+                <TextView
+                    android:id="@+id/textOldSkool"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Old Skool"
+                    android:padding="24dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Genre: Classical -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardClassical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="12dp">
+                <TextView
+                    android:id="@+id/textClassical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Classical"
+                    android:padding="24dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Genre: Jazz -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardJazz"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="12dp">
+                <TextView
+                    android:id="@+id/textJazz"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Jazz"
+                    android:padding="24dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Genre: Electronic -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardElectronic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="12dp">
+                <TextView
+                    android:id="@+id/textElectronic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Electronic"
+                    android:padding="24dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Genre: Reggae -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardReggae"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardElevation="6dp"
+                app:cardCornerRadius="12dp">
+                <TextView
+                    android:id="@+id/textReggae"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Reggae"
+                    android:padding="24dp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:backgroundTint="@color/purple_500"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toTopOf="@id/bottomBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Bottom Background Image -->
+    <ImageView
+        android:id="@+id/bottomBackground"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/bottom_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

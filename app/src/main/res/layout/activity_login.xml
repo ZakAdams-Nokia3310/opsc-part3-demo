@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Login">
+
+    <!-- Top Background Image -->
+    <ImageView
+        android:id="@+id/topBackground"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/top_background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Logo Image -->
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/logosynup"
+        android:contentDescription="@string/logo"
+        app:layout_constraintTop_toBottomOf="@+id/topBackground"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Welcome Text -->
+    <TextView
+        android:id="@+id/welcomeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Welcome to SyncUp"
+        android:textColor="@color/purple_500"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/logo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Username Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/usernameInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:layout_constraintTop_toBottomOf="@id/welcomeText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/username"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Username"
+            android:textColor="@color/purple_500"
+            android:gravity="center"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Password Input -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:layout_constraintTop_toBottomOf="@id/usernameInput"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:textColor="@color/purple_500"
+            android:gravity="center"
+            android:textSize="16sp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Forgot Password Text -->
+    <TextView
+        android:id="@+id/forgotPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Forgot Password?"
+        android:textColor="@color/purple_500"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/passwordInput"
+        app:layout_constraintEnd_toEndOf="@id/passwordInput"
+        app:layout_constraintStart_toStartOf="@id/passwordInput" />
+
+    <!-- Login Button -->
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="64dp"
+        android:layout_marginEnd="64dp"
+        android:backgroundTint="@color/purple_500"
+        android:text="Login"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/forgotPassword" />
+
+    <!-- Register Button -->
+    <Button
+        android:id="@+id/registerButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Don't have an account? Register here"
+        android:textColor="@color/purple_500"
+        android:backgroundTint="@android:color/transparent"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/loginButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Social Login Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/registerButton">
+
+        <!-- Google Login -->
+        <ImageView
+            android:id="@+id/googleLogin"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/google"
+            android:contentDescription="Google Login" />
+
+        <!-- Twitter Login -->
+        <ImageView
+            android:id="@+id/twitterLogin"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/twitter"
+            android:contentDescription="Twitter Login" />
+
+        <!-- Facebook Login -->
+        <ImageView
+            android:id="@+id/facebookLogin"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/facebook"
+            android:contentDescription="Facebook Login" />
+    </LinearLayout>
+
+    <!-- Bottom Background Image -->
+    <ImageView
+        android:id="@+id/bottomBackground"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/bottom_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">SyncUp_Demo</string>
+    <string name="logo">App Logo</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="close">Close</string>
+</resources>

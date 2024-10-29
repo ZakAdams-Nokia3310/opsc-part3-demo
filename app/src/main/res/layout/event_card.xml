@@ -1,0 +1,80 @@
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:elevation="4dp"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Event Name -->
+        <TextView
+            android:id="@+id/eventName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Event Name"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Event Time -->
+        <TextView
+            android:id="@+id/eventTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Event Time" />
+
+        <!-- Event Date -->
+        <TextView
+            android:id="@+id/eventDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Event Date"
+            android:layout_marginTop="4dp" />
+
+        <!-- Event Location -->
+        <TextView
+            android:id="@+id/eventLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Event Location" />
+
+        <!-- Ticket Price -->
+        <TextView
+            android:id="@+id/eventTicketPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ticket Price" />
+
+        <!-- Event Genre -->
+        <TextView
+            android:id="@+id/eventGenre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Event Genre"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginTop="4dp" />
+
+        <!-- DJ Details Container -->
+        <LinearLayout
+            android:id="@+id/djDetailsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp">
+            <!-- DJ details will be dynamically added here -->
+        </LinearLayout>
+
+        <!-- View Details Button -->
+        <Button
+            android:id="@+id/viewDetailsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="View Details"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
