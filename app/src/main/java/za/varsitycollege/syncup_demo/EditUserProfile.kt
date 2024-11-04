@@ -11,21 +11,15 @@ import android.widget.ImageView
 import android.widget.Switch
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import za.varsitycollege.syncup_demo.network.UploadProfilePictureResponse
-import java.io.File
-import java.io.FileOutputStream
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class EditUserProfile : AppCompatActivity() {
 
     private lateinit var profileImageView: ImageView
     private lateinit var userNameEditText: EditText
     private lateinit var userEmailEditText: EditText
+    private lateinit var phoneNumberEditText: EditText
     private lateinit var biometricSwitch: Switch
     private val PICK_IMAGE = 100
     private var imageUri: Uri? = null
@@ -34,53 +28,25 @@ class EditUserProfile : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_user_profile)
 
-        // Find views
+        // Initialize views
         profileImageView = findViewById(R.id.editProfilePicture)
         userNameEditText = findViewById(R.id.editUserName)
         userEmailEditText = findViewById(R.id.editUserEmail)
+        phoneNumberEditText = findViewById(R.id.phoneNumberInput)
         biometricSwitch = findViewById(R.id.biometricSwitch)
 
-        // Change profile picture
+        // Set click listener for changing profile picture
         profileImageView.setOnClickListener {
             val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             startActivityForResult(galleryIntent, PICK_IMAGE)
         }
 
-        // Handle save changes
-        val saveChangesBtn = findViewById<Button>(R.id.saveChangesBtn)
-        saveChangesBtn.setOnClickListener {
-            val userName = userNameEditText.text.toString()
-            val userEmail = userEmailEditText.text.toString()
-
-            // Validate info
-            if (userName.isEmpty() || userEmail.isEmpty()) {
-                Snackbar.make(it, "All fields are required", Snackbar.LENGTH_LONG).show()
-            } else {
-                // Save the changes to the profile (you can integrate your backend here)
-                Snackbar.make(it, "Changes saved", Snackbar.LENGTH_LONG).show()
-
-                // Upload profile picture if selected
-                if (imageUri != null) {
-                    uploadProfilePicture(imageUri!!)
-                } else {
-                    Snackbar.make(it, "No profile picture selected", Snackbar.LENGTH_LONG).show()
-                }
-            }
-        }
-
-        // Handle biometrics toggle
-        biometricSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                // Enable biometric login
-                Snackbar.make(biometricSwitch, "Biometric login enabled", Snackbar.LENGTH_LONG).show()
-            } else {
-                // Disable biometric login
-                Snackbar.make(biometricSwitch, "Biometric login disabled", Snackbar.LENGTH_LONG).show()
-            }
+        // Save changes button
+        findViewById<Button>(R.id.saveChangesBtn).setOnClickListener {
+            saveProfileChanges()
         }
     }
 
-    // Handle selecting an image from the gallery
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE && resultCode == Activity.RESULT_OK) {
@@ -89,49 +55,35 @@ class EditUserProfile : AppCompatActivity() {
         }
     }
 
-    // Function to upload profile picture to the backend
-    private fun uploadProfilePicture(imageUri: Uri) {
-        val authService = RetrofitClient.getAuthService()
+    private fun saveProfileChanges() {
+        val userName = userNameEditText.text.toString().trim()
+        val userEmail = userEmailEditText.text.toString().trim()
+        val phoneNumber = phoneNumberEditText.text.toString().trim()
 
-        // Assuming you store userId in SharedPreferences
-        val sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
-        val userId = sharedPreferences.getString("userId", "") ?: ""
+        if (userName.isEmpty() || userEmail.isEmpty()) {
+            Snackbar.make(profileImageView, "Name and Email are required", Snackbar.LENGTH_LONG).show()
+            return
+        }
 
-        // Convert Uri to File
-        val imageFile = uriToFile(imageUri)
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            val userRef = FirebaseDatabase.getInstance().getReference("users").child(uid)
 
-        // Prepare MultipartBody.Part
-        val requestFile = RequestBody.create("image/jpeg".toMediaTypeOrNull(), imageFile)
-        val imagePart = MultipartBody.Part.createFormData("image", imageFile.name, requestFile)
+            val userUpdates = mapOf(
+                "name" to userName,
+                "email" to userEmail,
+                "phone" to phoneNumber // Optional: can be ignored if empty
+            )
 
-        // Prepare userId
-        val userIdRequestBody = RequestBody.create("text/plain".toMediaTypeOrNull(), userId)
-
-        // Upload the profile picture
-        authService.uploadProfilePicture(userIdRequestBody, imagePart).enqueue(object : Callback<UploadProfilePictureResponse> {
-            override fun onResponse(call: Call<UploadProfilePictureResponse>, response: Response<UploadProfilePictureResponse>) {
-                if (response.isSuccessful && response.body() != null) {
-                    val uploadResponse = response.body()!!
-                    Snackbar.make(profileImageView, uploadResponse.message, Snackbar.LENGTH_LONG).show()
+            userRef.updateChildren(userUpdates).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Snackbar.make(profileImageView, "Profile updated successfully", Snackbar.LENGTH_LONG).show()
                 } else {
-                    Snackbar.make(profileImageView, "Failed to upload picture", Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(profileImageView, "Failed to update profile", Snackbar.LENGTH_LONG).show()
                 }
             }
-
-            override fun onFailure(call: Call<UploadProfilePictureResponse>, t: Throwable) {
-                Snackbar.make(profileImageView, "Error: ${t.message}", Snackbar.LENGTH_LONG).show()
-            }
-        })
-    }
-
-    // Convert Uri to File
-    private fun uriToFile(uri: Uri): File {
-        val inputStream = contentResolver.openInputStream(uri)
-        val file = File(cacheDir, "profile_picture.jpg")
-        val outputStream = FileOutputStream(file)
-        inputStream?.copyTo(outputStream)
-        inputStream?.close()
-        outputStream.close()
-        return file
+        } else {
+            Snackbar.make(profileImageView, "User not logged in", Snackbar.LENGTH_LONG).show()
+        }
     }
 }

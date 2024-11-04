@@ -1,8 +1,8 @@
 package za.varsitycollege.syncup_demo.network
 
 data class GenreRequest(
-    val username: String,   // or userId, depending on your setup
-    val selectedGenres: List<String>
+    val userId: String,
+    val genres: List<String>
 )
 
 data class GenreResponse(

@@ -23,6 +23,7 @@ data class EventResponse(
     val date: String,
     val time: String,
     val location: String,
-    val ticketPrice: String,
-    val djDetails: List<DJDetails>
+    val ticketPrice: String?,
+    val djDetails: List<DJDetails>?
 )
+

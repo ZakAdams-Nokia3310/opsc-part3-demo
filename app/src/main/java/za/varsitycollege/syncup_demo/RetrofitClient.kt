@@ -6,9 +6,8 @@ import za.varsitycollege.syncup_demo.network.AuthService
 import za.varsitycollege.syncup_demo.network.EventAPI2
 
 object RetrofitClient {
-    private var retrofit: Retrofit? = null
-    // Set your deployed API base URL here
     private const val BASE_URL = "https://api-twjzcamdda-uc.a.run.app/"  // Replace with actual deployed API URL
+    private var retrofit: Retrofit? = null
 
     // Helper function to get the Retrofit instance
     private fun getRetrofitInstance(): Retrofit {

@@ -58,11 +58,13 @@ class Registration : AppCompatActivity() {
 
                         if (registrationResponse != null && registrationResponse.success) {
                             // Registration was successful
-                            Log.d("Registration", "User registered successfully with email: $email")
+                            val userId = registrationResponse.userId // Retrieve userId from response
+                            Log.d("Registration", "User registered successfully with email: $email and userId: $userId")
                             Toast.makeText(this@Registration, "Registration successful!", Toast.LENGTH_SHORT).show()
 
-                            // Navigate to the next screen
+                            // Pass userId to GenreSelection activity
                             val intent = Intent(this@Registration, GenreSelection::class.java)
+                            intent.putExtra("userId", userId) // Pass userId
                             startActivity(intent)
                             finish()
                         } else {

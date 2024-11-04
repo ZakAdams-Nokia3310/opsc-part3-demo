@@ -3,27 +3,36 @@ package za.varsitycollege.syncup_demo.network
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import za.varsitycollege.syncup_demo.EventData
 
-// Define the API endpoints for event-related requests
 interface EventAPI2 {
 
-    // Endpoint to create a new event (POST request)
-    @POST("events/create")
-    fun createEvent(@Body eventRequest: EventRequest): Call<EventResponse>
+    @POST("api/events/create")
+    fun createEvent(
+        @Header("Authorization") token: String,
+        @Body eventRequest: EventRequest
+    ): Call<EventResponse>
 
-    // Endpoint to get the list of upcoming events (GET request)
-    @GET("events/upcoming")
-    fun getUpcomingEvents(): Call<List<EventData>>
+    @GET("api/events/upcoming")
+    fun getUpcomingEvents(@Header("Authorization") token: String): Call<List<EventData>>
 
-    @POST("/subscribe")
-    fun subscribeToEvent(@Body subscriptionRequest: SubscriptionRequest): Call<SubscriptionResponse>
+    @POST("api/events/subscribe")
+    fun subscribeToEvent(
+        @Body subscriptionRequest: SubscriptionRequest,
+        @Header("Authorization") token: String
+    ): Call<SubscriptionResponse>
 
-    @GET("/events/subscribed")  // Adjust the path based on your server's API endpoint
-    fun getSubscribedEvents(): Call<List<EventData>>
+    @GET("api/events/subscribed")
+    fun getSubscribedEvents(
+        @Header("Authorization") token: String
+    ): Call<List<EventData>>
 
-    @GET("events/{eventId}/djs")
-    fun getDJDetailsForEvent(@Path("eventId") eventId: String): Call<List<DJDetails>>
+    @GET("api/events/{eventId}/djs")
+    fun getDJDetailsForEvent(
+        @Path("eventId") eventId: String,
+        @Header("Authorization") token: String
+    ): Call<List<DJDetails>>
 }

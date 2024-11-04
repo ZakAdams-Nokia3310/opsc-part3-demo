@@ -2,45 +2,44 @@ package za.varsitycollege.syncup_demo
 
 import android.os.Parcel
 import android.os.Parcelable
-import za.varsitycollege.syncup_demo.DJDetails
+import com.google.firebase.database.IgnoreExtraProperties
 
+@IgnoreExtraProperties
 data class EventData(
-    val eventName: String,
-    val eventTime: String,
-    val eventLocation: String,
-    val ticketPrice: String,
-    val eventGenre: String?, // Optional genre field, nullable
-    val djDetails: List<DJDetails> // List of DJs and their times
+    val name: String = "",
+    val time: String = "",
+    val date: String = "",
+    val location: String = "",
+    val ticketPrice: String = "",
+    val genre: String? = null,
+    val djDetails: List<DJDetails> = emptyList()
 ) : Parcelable {
-    constructor(parcel: Parcel) : this(
-        parcel.readString() ?: "",  // Read event name
-        parcel.readString() ?: "",  // Read event time
-        parcel.readString() ?: "",  // Read event location
-        parcel.readString() ?: "",  // Read ticket price
-        parcel.readString(),        // Read genre (nullable)
-        parcel.createTypedArrayList(DJDetails.CREATOR) ?: emptyList() // Reference DJDetails.CREATOR
+
+    // Constructor to create EventData from a Parcel
+    private constructor(parcel: Parcel) : this(
+        name = parcel.readString().orEmpty(),
+        time = parcel.readString().orEmpty(),
+        date = parcel.readString().orEmpty(),
+        location = parcel.readString().orEmpty(),
+        ticketPrice = parcel.readString().orEmpty(),
+        genre = parcel.readString(),
+        djDetails = parcel.createTypedArrayList(DJDetails.CREATOR) ?: emptyList()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(eventName)
-        parcel.writeString(eventTime)
-        parcel.writeString(eventLocation)
+        parcel.writeString(name)
+        parcel.writeString(time)
+        parcel.writeString(date)
+        parcel.writeString(location)
         parcel.writeString(ticketPrice)
-        parcel.writeString(eventGenre) // Write the genre (nullable)
-        parcel.writeTypedList(djDetails) // Write the list of DJs to the Parcel
+        parcel.writeString(genre)
+        parcel.writeTypedList(djDetails)
     }
 
-    override fun describeContents(): Int {
-        return 0
-    }
+    override fun describeContents(): Int = 0
 
     companion object CREATOR : Parcelable.Creator<EventData> {
-        override fun createFromParcel(parcel: Parcel): EventData {
-            return EventData(parcel)
-        }
-
-        override fun newArray(size: Int): Array<EventData?> {
-            return arrayOfNulls(size)
-        }
+        override fun createFromParcel(parcel: Parcel): EventData = EventData(parcel)
+        override fun newArray(size: Int): Array<EventData?> = arrayOfNulls(size)
     }
 }

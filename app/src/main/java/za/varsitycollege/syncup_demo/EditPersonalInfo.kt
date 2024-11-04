@@ -1,84 +1,101 @@
 package za.varsitycollege.syncup_demo
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.textfield.TextInputEditText
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import za.varsitycollege.syncup_demo.network.UpdatePersonalInfoRequest
-import za.varsitycollege.syncup_demo.network.UpdatePersonalInfoResponse
+import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class EditPersonalInfo : AppCompatActivity() {
+
+    private lateinit var nameInput: EditText
+    private lateinit var surnameInput: EditText
+    private lateinit var studentNumberInput: EditText
+    private lateinit var emailInput: EditText
+    private lateinit var phoneNumberInput: EditText // Optional phone number field
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_personal_info)
 
-        val nameInput = findViewById<TextInputEditText>(R.id.nameInput)
-        val surnameInput = findViewById<TextInputEditText>(R.id.surnameInput)
-        val studentNumberInput = findViewById<TextInputEditText>(R.id.studentNumberInput)
-        val emailInput = findViewById<TextInputEditText>(R.id.emailInput)
-        val phoneNumberInput = findViewById<TextInputEditText>(R.id.phoneNumberInput)
-        val saveButton = findViewById<com.google.android.material.button.MaterialButton>(R.id.saveButton)
+        // Initialize input fields
+        nameInput = findViewById(R.id.nameInput)
+        surnameInput = findViewById(R.id.surnameInput)
+        studentNumberInput = findViewById(R.id.studentNumberInput)
+        emailInput = findViewById(R.id.emailInput)
+        phoneNumberInput = findViewById(R.id.phoneNumberInput)
 
-        // Assuming the user ID or username is stored in SharedPreferences (or retrieved from elsewhere)
-        val sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
-        val username = sharedPreferences.getString("username", "") ?: ""
-
-        saveButton.setOnClickListener {
-            val name = nameInput.text.toString()
-            val surname = surnameInput.text.toString()
-            val studentNumber = studentNumberInput.text.toString()
-            val email = emailInput.text.toString()
-            val phoneNumber = phoneNumberInput.text.toString()
-
-            // Validate info
-            if (name.isEmpty() || surname.isEmpty() || studentNumber.isEmpty() || email.isEmpty() || phoneNumber.isEmpty()) {
-                Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show()
-            } else {
-                // Call function to update the personal info via API
-                updatePersonalInfo(name, surname, studentNumber, email, phoneNumber)
-            }
+        // Save button
+        findViewById<Button>(R.id.saveButton).setOnClickListener {
+            savePersonalInfo()
         }
 
-        // Close button click listener
-        val closeButton = findViewById<Button>(R.id.closeButton)
-        closeButton.setOnClickListener {
-            val intent = Intent(this, UserProfile::class.java)
-            startActivity(intent)
-            finish()
+        // Close button
+        findViewById<Button>(R.id.closeButton).setOnClickListener {
+            finish() // Close the activity
+        }
+
+        // Load existing user data
+        loadUserData()
+    }
+
+    private fun loadUserData() {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            val userRef = FirebaseDatabase.getInstance().getReference("users").child(uid)
+            userRef.get().addOnCompleteListener { task ->
+                if (task.isSuccessful && task.result.exists()) {
+                    val user = task.result
+                    nameInput.setText(user.child("name").value.toString())
+                    surnameInput.setText(user.child("surname").value.toString())
+                    studentNumberInput.setText(user.child("studentNumber").value.toString())
+                    emailInput.setText(user.child("email").value.toString())
+                    phoneNumberInput.setText(user.child("phone").value.toString()) // Optional
+                } else {
+                    Toast.makeText(this, "Failed to load user data.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } else {
+            Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun updatePersonalInfo(name: String, surname: String, studentNumber: String, email: String, phoneNumber: String) {
-        val authService = RetrofitClient.getAuthService()
+    private fun savePersonalInfo() {
+        val name = nameInput.text.toString().trim()
+        val surname = surnameInput.text.toString().trim()
+        val studentNumber = studentNumberInput.text.toString().trim()
+        val email = emailInput.text.toString().trim()
+        val phone = phoneNumberInput.text.toString().trim() // Optional
 
-        val updateRequest = UpdatePersonalInfoRequest(name, surname, studentNumber, email, phoneNumber)
+        if (name.isEmpty() || surname.isEmpty() || studentNumber.isEmpty() || email.isEmpty()) {
+            Snackbar.make(nameInput, "All fields except phone are required.", Snackbar.LENGTH_LONG).show()
+            return
+        }
 
-        authService.updatePersonalInfo(updateRequest).enqueue(object : Callback<UpdatePersonalInfoResponse> {
-            override fun onResponse(call: Call<UpdatePersonalInfoResponse>, response: Response<UpdatePersonalInfoResponse>) {
-                if (response.isSuccessful && response.body() != null) {
-                    val updateResponse = response.body()!!
-                    if (updateResponse.success) {
-                        Toast.makeText(this@EditPersonalInfo, "Personal info updated successfully", Toast.LENGTH_SHORT).show()
-                        val intent = Intent(this@EditPersonalInfo, UserProfile::class.java)
-                        startActivity(intent)
-                        finish()
-                    } else {
-                        Toast.makeText(this@EditPersonalInfo, updateResponse.message, Toast.LENGTH_SHORT).show()
-                    }
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            val userRef = FirebaseDatabase.getInstance().getReference("users").child(uid)
+
+            val userUpdates = mapOf(
+                "name" to name,
+                "surname" to surname,
+                "studentNumber" to studentNumber,
+                "email" to email,
+                "phone" to phone // Optional field
+            )
+
+            userRef.updateChildren(userUpdates).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Snackbar.make(nameInput, "Personal info updated successfully.", Snackbar.LENGTH_LONG).show()
                 } else {
-                    Toast.makeText(this@EditPersonalInfo, "Failed to update personal info", Toast.LENGTH_SHORT).show()
+                    Snackbar.make(nameInput, "Failed to update personal info.", Snackbar.LENGTH_LONG).show()
                 }
             }
-
-            override fun onFailure(call: Call<UpdatePersonalInfoResponse>, t: Throwable) {
-                Toast.makeText(this@EditPersonalInfo, "Error: ${t.message}", Toast.LENGTH_LONG).show()
-            }
-        })
+        } else {
+            Snackbar.make(nameInput, "User not logged in.", Snackbar.LENGTH_LONG).show()
+        }
     }
 }

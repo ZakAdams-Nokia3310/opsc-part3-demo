@@ -8,7 +8,10 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.google.firebase.FirebaseApp
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.database.FirebaseDatabase
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -20,78 +23,63 @@ class Dashboard : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        FirebaseApp.initializeApp(this)
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+
         val eventContainer = findViewById<LinearLayout>(R.id.eventContainer)
-        val greetingTextView = findViewById<TextView>(R.id.greetingTextView) // Assuming you have this TextView in your layout
+        val greetingTextView = findViewById<TextView>(R.id.greetingTextView)
 
-        // Dummy events data with DJs
-        val dummyEvents = arrayListOf(
-            EventData(
-                eventName = "Music Festival",
-                eventTime = "6:00 PM, 10/30/2024",
-                eventLocation = "City Stadium",
-                ticketPrice = "$30",
-                eventGenre = "Rock",
-                djDetails = listOf(
-                    DJDetails(name = "DJ Rock", time = "6:00 PM"),
-                    DJDetails(name = "DJ Beat", time = "7:00 PM")
-                )
-            ),
-            EventData(
-                eventName = "Jazz Night",
-                eventTime = "8:00 PM, 11/15/2024",
-                eventLocation = "Downtown Club",
-                ticketPrice = "$20",
-                eventGenre = "Jazz",
-                djDetails = listOf(
-                    DJDetails(name = "DJ Smooth", time = "8:00 PM"),
-                    DJDetails(name = "DJ Groove", time = "9:00 PM")
-                )
-
-        ),
-            EventData(
-                eventName = "Electronic Dance Party",
-                eventTime = "10:00 PM, 12/01/2024",
-                eventLocation = "Open Air Arena",
-                ticketPrice = "$50",
-                eventGenre = "Electronic",
-                djDetails = listOf(
-                    DJDetails("DJ Electro", "10:00 PM"),
-                    DJDetails("DJ Vibe", "11:00 PM")
-                )
-            )
-        )
-
-        // First, display dummy events
-        for (event in dummyEvents) {
-            addEventCard(event, eventContainer)
-        }
-
-        // Fetch events from API and update UI
         fetchUpcomingEvents(eventContainer)
 
-        // Fetch username and show greeting
         fetchUsername { username ->
-            greetingTextView.text = "Hello, $username!"
+            greetingTextView.text = if (username != null) {
+                "Hello, $username!"
+            } else {
+                "Hello, Guest!"
+            }
         }
 
-        // Handle "See All" click to open Upcoming Events List
         val seeAllText = findViewById<TextView>(R.id.textView9)
         seeAllText.setOnClickListener {
             val intent = Intent(this, UpcomingEventsList::class.java)
-            intent.putParcelableArrayListExtra("events", dummyEvents) // Include dummy events
+            startActivity(intent)
+        }
+
+        // Account Button
+        val accountButton = findViewById<ConstraintLayout>(R.id.btnAccount)
+        accountButton.setOnClickListener {
+            val intent = Intent(this, UserProfile::class.java)
+            startActivity(intent)
+        }
+
+        // Events For You Button
+        val eventsForYouButton = findViewById<ConstraintLayout>(R.id.btnEventsForYou)
+        eventsForYouButton.setOnClickListener {
+            val intent = Intent(this, EventsForYou::class.java)
+            startActivity(intent)
+        }
+
+        // Create Event Button
+        val createEventButton = findViewById<ConstraintLayout>(R.id.btnCreateEvent)
+        createEventButton.setOnClickListener {
+            val intent = Intent(this, CreateEvent::class.java)
             startActivity(intent)
         }
     }
 
-    // Function to fetch username from the database via API
-    private fun fetchUsername(callback: (String) -> Unit) {
+    private fun fetchUsername(callback: (String?) -> Unit) {
         val authService = RetrofitClient.getAuthService()
+        val userId = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+            .getString("userId", "") ?: return
+        val token = "Bearer " + getSharedPreferences("UserPreferences", MODE_PRIVATE)
+            .getString("token", "")
 
-        authService.getUserDetails().enqueue(object : Callback<UserResponse> {
+        authService.getUserDetails(userId, token).enqueue(object : Callback<UserResponse> {
             override fun onResponse(call: Call<UserResponse>, response: Response<UserResponse>) {
                 if (response.isSuccessful && response.body() != null) {
                     val userResponse = response.body()!!
-                    callback(userResponse.username)
+                    val userName = userResponse.data.name
+                    callback(userName)
                 } else {
                     Toast.makeText(this@Dashboard, "Failed to fetch user data.", Toast.LENGTH_SHORT).show()
                 }
@@ -103,68 +91,62 @@ class Dashboard : AppCompatActivity() {
         })
     }
 
-    // Function to fetch upcoming events from the database
     private fun fetchUpcomingEvents(eventContainer: LinearLayout) {
-        val eventService = RetrofitClient.getEventService()
+        val eventsRef = FirebaseDatabase.getInstance().getReference("events")
 
-        eventService.getUpcomingEvents().enqueue(object : Callback<List<EventData>> {
-            override fun onResponse(call: Call<List<EventData>>, response: Response<List<EventData>>) {
-                if (response.isSuccessful && response.body() != null) {
-                    val upcomingEvents = response.body()!!
-
-                    // Add fetched events to the container (while keeping dummy events)
-                    for (event in upcomingEvents) {
-                        addEventCard(event, eventContainer)
+        eventsRef.get().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val snapshot = task.result
+                val events = mutableListOf<EventData>()
+                snapshot.children.forEach { child ->
+                    val event = child.getValue(EventData::class.java)
+                    if (event != null) {
+                        events.add(event)
                     }
-                } else {
-                    Toast.makeText(this@Dashboard, "Failed to fetch events.", Toast.LENGTH_SHORT).show()
                 }
+                events.forEach { event ->
+                    addEventCard(event, eventContainer)
+                }
+            } else {
+                Toast.makeText(this, "Failed to fetch events: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
             }
-
-            override fun onFailure(call: Call<List<EventData>>, t: Throwable) {
-                Toast.makeText(this@Dashboard, "Error: ${t.message}", Toast.LENGTH_LONG).show()
-            }
-        })
+        }
     }
 
     private fun addEventCard(event: EventData, eventContainer: LinearLayout) {
-        // Inflate the event card layout
         val inflater = LayoutInflater.from(this)
-        val eventCard = inflater.inflate(R.layout.event_card, eventContainer, false) as CardView
+        val eventCard = inflater.inflate(R.layout.event_card, eventContainer, false)
 
-        // Set the event details in the card
         val eventNameView = eventCard.findViewById<TextView>(R.id.eventName)
         val eventTimeView = eventCard.findViewById<TextView>(R.id.eventTime)
+        val eventDateView = eventCard.findViewById<TextView>(R.id.eventDate)
         val eventLocationView = eventCard.findViewById<TextView>(R.id.eventLocation)
         val ticketPriceView = eventCard.findViewById<TextView>(R.id.eventTicketPrice)
-        val eventGenreView = eventCard.findViewById<TextView>(R.id.eventGenre) // Genre TextView
+        val eventGenreView = eventCard.findViewById<TextView>(R.id.eventGenre)
 
-        eventNameView.text = event.eventName
-        eventTimeView.text = event.eventTime
-        eventLocationView.text = event.eventLocation
+        eventNameView.text = event.name
+        eventTimeView.text = event.time
+        eventDateView.text = event.date
+        eventLocationView.text = event.location
         ticketPriceView.text = event.ticketPrice
-        eventGenreView.text = event.eventGenre // Set genre
+        eventGenreView.text = event.genre
 
-        // Handle the "View Details" button click
         val viewDetailsButton = eventCard.findViewById<Button>(R.id.viewDetailsButton)
         viewDetailsButton.setOnClickListener {
-            // Show full event details
             showEventDetails(event)
         }
 
-        // Add the event card to the event container
         eventContainer.addView(eventCard)
     }
 
-
     private fun showEventDetails(event: EventData) {
-        // Open the EventDisplay activity to show event details
         val intent = Intent(this, EventDisplay::class.java)
-        intent.putExtra("eventName", event.eventName)
-        intent.putExtra("eventTime", event.eventTime)
-        intent.putExtra("eventLocation", event.eventLocation)
+        intent.putExtra("eventName", event.name)
+        intent.putExtra("eventTime", event.time)
+        intent.putExtra("eventDate", event.date)
+        intent.putExtra("eventLocation", event.location)
         intent.putExtra("ticketPrice", event.ticketPrice)
-        intent.putExtra("eventGenre", event.eventGenre) // Pass genre as well
+        intent.putExtra("eventGenre", event.genre)
         startActivity(intent)
     }
 }

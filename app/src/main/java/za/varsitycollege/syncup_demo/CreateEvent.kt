@@ -12,21 +12,30 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import za.varsitycollege.syncup_demo.network.DJDetails
 import za.varsitycollege.syncup_demo.network.EventRequest
-import za.varsitycollege.syncup_demo.network.EventResponse
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 class CreateEvent : AppCompatActivity() {
 
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_event)
+
+        auth = FirebaseAuth.getInstance()
+
+        val user = auth.currentUser
+        if (user == null) {
+            Toast.makeText(this, "User not authenticated. Please log in.", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         val numberOfDJsInput = findViewById<EditText>(R.id.numberOfDJs)
         val djDetailsContainer = findViewById<LinearLayout>(R.id.djDetailsContainer)
@@ -93,37 +102,45 @@ class CreateEvent : AppCompatActivity() {
                 djDetails = djDetailsList
             )
 
-            // Call API to create the event
-            createEvent(eventRequest)
+            // Create the event in Firebase
+            createEvent(eventRequest, user.uid, user.displayName ?: "Unknown User")
         }
     }
 
-    // Function to create the event using Retrofit API
-    private fun createEvent(eventRequest: EventRequest) {
-        val eventService = RetrofitClient.getEventService()
-        eventService.createEvent(eventRequest).enqueue(object : Callback<EventResponse> {
-            override fun onResponse(call: Call<EventResponse>, response: Response<EventResponse>) {
-                if (response.isSuccessful && response.body() != null) {
-                    val eventResponse = response.body()!!
-                    if (eventResponse.success) {
-                        Toast.makeText(this@CreateEvent, "Event created successfully!", Toast.LENGTH_SHORT).show()
+    // Function to create the event using Firebase Realtime Database
+    private fun createEvent(eventRequest: EventRequest, userId: String, userName: String) {
+        val database = FirebaseDatabase.getInstance()
+        val eventsRef = database.getReference("events")
 
-                        // Refresh the Upcoming Events list by navigating back
-                        val intent = Intent(this@CreateEvent, UpcomingEventsList::class.java)
-                        startActivity(intent)
-                        finish() // Close the current activity
-                    } else {
-                        Toast.makeText(this@CreateEvent, "Failed to create event: ${eventResponse.message}", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(this@CreateEvent, "Failed to create event.", Toast.LENGTH_SHORT).show()
-                }
-            }
+        val eventId = eventsRef.push().key ?: return
+        val eventMap = mapOf(
+            "name" to eventRequest.name,
+            "date" to eventRequest.date,
+            "time" to eventRequest.time,
+            "location" to eventRequest.location,
+            "ticketPrice" to eventRequest.ticketPrice,
+            "djDetails" to eventRequest.djDetails.map {
+                mapOf(
+                    "name" to it.name,
+                    "time" to it.time,
+                    "genre" to it.genre
+                )
+            },
+            "createdBy" to userName,
+            "userId" to userId
+        )
 
-            override fun onFailure(call: Call<EventResponse>, t: Throwable) {
-                Toast.makeText(this@CreateEvent, "Error: ${t.message}", Toast.LENGTH_LONG).show()
+        eventsRef.child(eventId).setValue(eventMap).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(this@CreateEvent, "Event created successfully!", Toast.LENGTH_SHORT).show()
+                // Navigate to the Upcoming Events list
+                val intent = Intent(this@CreateEvent, UpcomingEventsList::class.java)
+                startActivity(intent)
+                finish()
+            } else {
+                Toast.makeText(this@CreateEvent, "Failed to create event: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
             }
-        })
+        }
     }
 
     // Dynamically add DJ input fields

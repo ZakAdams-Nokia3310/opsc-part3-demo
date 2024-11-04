@@ -17,10 +17,21 @@ import za.varsitycollege.syncup_demo.network.GenreResponse
 class GenreSelection : AppCompatActivity() {
 
     private val selectedGenres = mutableListOf<String>()  // List to track selected genres
+    private var userId: String? = null  // Variable to store userId
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_genre_selection)
+
+        // Retrieve userId passed from Registration activity
+        userId = intent.getStringExtra("userId")
+
+        // Ensure userId is not null
+        if (userId == null) {
+            Toast.makeText(this, "Error: No user ID found", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
         // Fetching views and genres
         val genreMap = mapOf(
@@ -73,34 +84,35 @@ class GenreSelection : AppCompatActivity() {
             return
         }
 
-        // Assuming user is logged in and we can get the username from SharedPreferences
-        val sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
-        val username = sharedPreferences.getString("username", "")
-
-        if (username.isNullOrEmpty()) {
-            Toast.makeText(this, "Error: No user logged in", Toast.LENGTH_SHORT).show()
+        if (userId == null) {
+            Toast.makeText(this, "Error: User ID is missing", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Create the GenreRequest object
+        val sharedPreferences = getSharedPreferences("UserPreferences", MODE_PRIVATE)
+        val token = sharedPreferences.getString("token", "")
+
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(this, "Error: Authentication token is missing", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         val genreRequest = GenreRequest(
-            username = username,
-            selectedGenres = selectedGenres
+            userId = userId!!,
+            genres = selectedGenres
         )
 
-        // Send the selected genres through the API
         val authService = RetrofitClient.getAuthService()
-        authService.submitGenres(genreRequest).enqueue(object : Callback<GenreResponse> {
+        authService.saveUserGenres("Bearer $token", genreRequest).enqueue(object : Callback<GenreResponse> {
             override fun onResponse(call: Call<GenreResponse>, response: Response<GenreResponse>) {
                 if (response.isSuccessful && response.body() != null) {
                     val genreResponse = response.body()!!
                     if (genreResponse.success) {
                         Toast.makeText(this@GenreSelection, "Genres submitted successfully!", Toast.LENGTH_SHORT).show()
-
-                        // Navigate to the Dashboard activity
                         val intent = Intent(this@GenreSelection, Dashboard::class.java)
+                        intent.putExtra("userId", userId)
                         startActivity(intent)
-                        finish()  // Close current activity
+                        finish()
                     } else {
                         Toast.makeText(this@GenreSelection, genreResponse.message, Toast.LENGTH_SHORT).show()
                     }

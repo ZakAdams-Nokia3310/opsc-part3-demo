@@ -5,10 +5,13 @@ import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.Path
+import za.varsitycollege.syncup_demo.EventData
 import za.varsitycollege.syncup_demo.LoginResponse
 
 // Update with your deployed API's URL
@@ -38,6 +41,33 @@ interface AuthService {
 
     @PUT("api/updatePersonalInfo")  // Ensure correct endpoint
     fun updatePersonalInfo(@Body updatePersonalInfoRequest: UpdatePersonalInfoRequest): Call<UpdatePersonalInfoResponse>
+
+    @POST("api/user/genres")
+    fun saveUserGenres(@Header("Authorization") token: String, @Body request: GenreRequest): Call<GenreResponse>
+
+
+    interface AuthService {
+        @POST("saveUserGenres")
+        fun saveUserGenres(@Body genreRequest: GenreRequest): Call<GenreResponse>
+    }
+
+    @GET("api/user/details/{userId}")
+    fun getUserDetails(@Path("userId") userId: String): Call<UserResponse>
+
+    @GET("/api/user/details/{userId}")
+    fun getUserDetails(
+        @Path("userId") userId: String,
+        @Header("Authorization") token: String
+    ): Call<UserResponse>
+
+    interface EventService {
+        @GET("api/events/upcoming")
+        fun getUpcomingEvents(
+            @Header("Authorization") token: String
+        ): Call<List<EventData>>
+    }
+
+
 
     @Multipart
     @POST("api/uploadProfilePicture") // Adjust as needed

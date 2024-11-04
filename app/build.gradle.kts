@@ -1,6 +1,9 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-android")
+    id("com.google.gms.google-services") // Apply the Google Services plugin
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -49,28 +52,28 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.1") // for Glide annotation processing
 
-    // Unit and UI testing libraries
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    // Biometric library for fingerprint and face authentication
+    implementation("androidx.biometric:biometric:1.2.0-alpha05") // Latest stable version or alpha if needed
+
+    // Firebase libraries
+    implementation(platform("com.google.firebase:firebase-bom:31.0.0")) // Firebase BOM
+    implementation("com.google.firebase:firebase-auth-ktx")             // Firebase Authentication
+    implementation("com.google.firebase:firebase-database-ktx")         // Firebase Realtime Database
+    implementation("com.google.firebase:firebase-storage-ktx")          // Optional: Firebase Storage
+    implementation("com.google.firebase:firebase-messaging-ktx")        // Optional: Firebase Cloud Messaging
+    implementation("com.google.firebase:firebase-crashlytics-ktx:18.2.12")
+    implementation("com.google.firebase:firebase-analytics-ktx:21.2.1")
 
     // Retrofit for API calls
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.google.code.gson:gson:2.8.6")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
 
-    // Firebase libraries
-    implementation(platform("com.google.firebase:firebase-bom:31.0.0")) // Use BOM to manage Firebase versions
-    implementation("com.google.firebase:firebase-auth-ktx")             // Firebase Authentication
-    implementation("com.google.firebase:firebase-database-ktx")         // Firebase Realtime Database
-
-    // Optional: Firebase Storage if you need file uploads
-    implementation("com.google.firebase:firebase-storage-ktx")
-
-    // Optional: Firebase Analytics (if needed)
-    implementation("com.google.firebase:firebase-analytics-ktx")
-
-    // Optional: Firebase Cloud Messaging (for push notifications)
-    implementation("com.google.firebase:firebase-messaging-ktx")
+    // Unit and UI testing libraries
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
 }
+
+
+apply(plugin = "com.google.gms.google-services")
